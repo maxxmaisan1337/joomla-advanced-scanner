@@ -2,93 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joomla Scanner by @maxxmaisan</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1e1e1e;
-            color: #f1f1f1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px;
-        }
-        h1 {
-            color: #4caf50;
-        }
-        input, select, button {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: none;
-            width: 300px;
-        }
-        button {
-            background-color: #4caf50;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #output {
-            margin-top: 20px;
-            width: 80%;
-            background-color: #333;
-            padding: 20px;
-            border-radius: 5px;
-            white-space: pre-wrap;
-            overflow-x: auto;
-        }
-    </style>
+    <title>Joomla Advanced Scanner</title>
 </head>
 <body>
-
-    <h1>Joomla Scanner by @maxxmaisan</h1>
-
-    <input type="text" id="targetUrl" placeholder="Enter Joomla Site URL">
-
-    <select id="scanOption">
-        <option value="plugins">Detect Plugins</option>
-        <option value="templates">Detect Templates</option>
-        <option value="version">Joomla Version & CVE Lookup</option>
-        <option value="bruteforce">Admin Panel Brute Force</option>
-        <option value="sqli">SQLi / LFI Scanner</option>
-        <option value="full">Full Scan</option>
-    </select>
-
+    <h1>Joomla Advanced Scanner</h1>
+    <input type="text" id="urlInput" placeholder="Enter target Joomla site URL">
     <button onclick="startScan()">Start Scan</button>
-
-    <div id="output"></div>
+    <pre id="resultArea"></pre>
 
     <script>
-        async function startScan() {
-            const url = document.getElementById('targetUrl').value;
-            const option = document.getElementById('scanOption').value;
-            const output = document.getElementById('output');
+        function startScan() {
+            const url = document.getElementById('urlInput').value;
 
-            if (!url) {
-                output.innerText = "Please enter a Joomla site URL.";
-                return;
-            }
-
-            output.innerText = "Scanning in progress...";
-
-            try {
-                const response = await fetch('/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url, option: option })
-                });
-
-                const data = await response.json();
-                output.innerText = data.result;
-            } catch (error) {
-                output.innerText = "Error: " + error;
-            }
+            fetch('/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('resultArea').innerText = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('resultArea').innerText = data.result;
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultArea').innerText = 'Request failed: ' + error;
+            });
         }
     </script>
-
 </body>
 </html>
